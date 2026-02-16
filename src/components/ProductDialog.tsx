@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { X, Loader2, Save } from "lucide-react";
+import { X, Loader2, Save, Upload, File } from "lucide-react";
 
 interface Product {
   id: string;
@@ -19,26 +19,86 @@ interface ProductDialogProps {
 const ProductDialog = ({ product, onClose, onSave }: ProductDialogProps) => {
   const [name, setName] = useState(product?.name || "");
   const [sellerKey, setSellerKey] = useState(product?.seller_key || "");
-  const [downloadUrl, setDownloadUrl] = useState(product?.download_url || "");
-  const [fileName, setFileName] = useState(product?.file_name || "");
+  const [file, setFile] = useState<globalThis.File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const currentFileName = file?.name || product?.file_name;
+
+  const handleFile = (f: globalThis.File) => {
+    setFile(f);
+    setError("");
+  };
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const f = e.dataTransfer.files[0];
+    if (f) handleFile(f);
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback(() => {
+    setIsDragging(false);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !sellerKey.trim() || !downloadUrl.trim()) {
-      setError("Preencha todos os campos obrigatórios.");
+    if (!name.trim() || !sellerKey.trim()) {
+      setError("Preencha nome e seller key.");
+      return;
+    }
+    if (!file && !product) {
+      setError("Selecione um arquivo.");
       return;
     }
 
     setLoading(true);
     setError("");
 
+    let downloadUrl = product?.download_url || "";
+    let fileName = product?.file_name || "";
+
+    // Upload file if new one selected
+    if (file) {
+      const filePath = `${crypto.randomUUID()}-${file.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from("downloads")
+        .upload(filePath, file);
+
+      if (uploadError) {
+        setError("Erro ao enviar arquivo: " + uploadError.message);
+        setLoading(false);
+        return;
+      }
+
+      const { data: urlData } = supabase.storage
+        .from("downloads")
+        .getPublicUrl(filePath);
+
+      downloadUrl = urlData.publicUrl;
+      fileName = file.name;
+
+      // Delete old file if editing
+      if (product?.download_url) {
+        const oldPath = product.download_url.split("/downloads/")[1];
+        if (oldPath) {
+          await supabase.storage.from("downloads").remove([oldPath]);
+        }
+      }
+    }
+
     const payload = {
       name: name.trim(),
       seller_key: sellerKey.trim(),
-      download_url: downloadUrl.trim(),
-      file_name: fileName.trim() || null,
+      download_url: downloadUrl,
+      file_name: fileName,
     };
 
     let result;
@@ -90,24 +150,48 @@ const ProductDialog = ({ product, onClose, onSave }: ProductDialogProps) => {
               placeholder="Chave única do produto"
             />
           </div>
+
+          {/* File Upload Area */}
           <div>
-            <label className="mb-1 block text-sm text-muted-foreground">URL de Download *</label>
+            <label className="mb-1 block text-sm text-muted-foreground">Arquivo *</label>
+            <div
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onClick={() => fileInputRef.current?.click()}
+              className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors ${
+                isDragging
+                  ? "border-primary bg-primary/10"
+                  : "border-border hover:border-muted-foreground"
+              }`}
+            >
+              {currentFileName ? (
+                <div className="flex items-center gap-3">
+                  <File className="h-8 w-8 text-primary" />
+                  <div className="text-left">
+                    <p className="text-sm font-medium text-foreground">{currentFileName}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {file ? "Novo arquivo selecionado" : "Arquivo atual"}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <Upload className="mb-2 h-8 w-8 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">
+                    Arraste o arquivo aqui ou <span className="text-primary">clique para selecionar</span>
+                  </p>
+                </>
+              )}
+            </div>
             <input
-              type="url"
-              value={downloadUrl}
-              onChange={(e) => setDownloadUrl(e.target.value)}
-              className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm text-foreground outline-none focus:ring-1 focus:ring-ring"
-              placeholder="https://exemplo.com/arquivo.zip"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-sm text-muted-foreground">Nome do Arquivo</label>
-            <input
-              type="text"
-              value={fileName}
-              onChange={(e) => setFileName(e.target.value)}
-              className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm text-foreground outline-none focus:ring-1 focus:ring-ring"
-              placeholder="arquivo.zip (opcional)"
+              ref={fileInputRef}
+              type="file"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) handleFile(f);
+              }}
             />
           </div>
 
