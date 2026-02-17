@@ -27,7 +27,7 @@ const HwidReset = () => {
     for (const p of products) {
       try {
         const { data: result, error: fnError } = await supabase.functions.invoke("reset-hwid", {
-          body: { sellerKey: p.seller_key, licenseKey: key.trim() },
+          body: { sellerKey: p.seller_key, licenseKey: key.trim(), softwareName: p.name },
         });
 
         if (!fnError && result?.success === true) {
