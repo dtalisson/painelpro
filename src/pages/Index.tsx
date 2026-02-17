@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { CheckCircle, Loader2, Shield, Download } from "lucide-react";
+import { Loader2, Shield, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import iconGif from "@/assets/icon.gif";
 import { toast } from "sonner";
 
 // Falling blue dust/pores background
@@ -39,9 +40,9 @@ const FallingDustBackground = () => {
       y: startY ?? Math.random() * canvas.height,
       vy: Math.random() * 0.8 + 0.2,
       vx: (Math.random() - 0.5) * 0.3,
-      size: Math.random() * 3 + 1,
-      opacity: Math.random() * 0.6 + 0.1,
-      blur: Math.random() > 0.7 ? Math.random() * 4 + 2 : 0,
+      size: Math.random() * 1.5 + 0.3,
+      opacity: Math.random() * 0.25 + 0.05,
+      blur: Math.random() > 0.8 ? Math.random() * 2 + 1 : 0,
     });
 
     // Initial particles spread across screen
@@ -151,8 +152,8 @@ const Index = () => {
       <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-4">
         <div className="w-full max-w-md">
           {/* Icon */}
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-primary/30 bg-primary/10 backdrop-blur-sm">
-            <Shield className="h-8 w-8 text-primary" />
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center">
+            <img src={iconGif} alt="Icon" className="h-20 w-20 object-contain" />
           </div>
 
           {/* Title */}
