@@ -38,11 +38,11 @@ const FallingDustBackground = () => {
     const createParticle = (startY?: number): Particle => ({
       x: Math.random() * canvas.width,
       y: startY ?? Math.random() * canvas.height,
-      vy: Math.random() * 0.8 + 0.2,
-      vx: (Math.random() - 0.5) * 0.3,
-      size: Math.random() * 1.5 + 0.3,
-      opacity: Math.random() * 0.25 + 0.05,
-      blur: Math.random() > 0.8 ? Math.random() * 2 + 1 : 0,
+      vy: Math.random() * 0.5 + 0.15,
+      vx: (Math.random() - 0.5) * 0.15,
+      size: Math.random() * 1.2 + 0.4,
+      opacity: 1,
+      blur: 0,
     });
 
     // Initial particles spread across screen
