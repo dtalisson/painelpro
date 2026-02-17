@@ -56,7 +56,7 @@ const AdminLogin = () => {
         </div>
 
         {/* Card */}
-        <div className="rounded-2xl border border-border/40 bg-card/60 backdrop-blur-2xl shadow-[0_8px_60px_-12px_rgba(59,130,246,0.12)] p-8">
+        <div className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-2xl shadow-[0_8px_60px_-12px_rgba(59,130,246,0.12)] p-8">
           {/* Header */}
           <div className="mb-8 text-center">
             <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 border border-primary/20">
