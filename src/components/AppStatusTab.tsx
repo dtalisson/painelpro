@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Plus, Pencil, Trash2, Loader2, Circle, X, Save,
+  Plus, Pencil, Trash2, Loader2, Circle, X, Save, Copy, Check,
 } from "lucide-react";
+import { toast } from "sonner";
 
 interface AppStatus {
   id: string;
@@ -47,6 +48,15 @@ const AppStatusTab = () => {
   const [form, setForm] = useState(defaultForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const copyEndpointUrl = (appId: string, id: string) => {
+    const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/api_status/${appId}`;
+    navigator.clipboard.writeText(url);
+    setCopiedId(id);
+    toast.success("URL copiada!");
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
   useEffect(() => {
     fetchApps();
@@ -210,6 +220,13 @@ const AppStatusTab = () => {
                       </td>
                       <td className="py-4">
                         <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => copyEndpointUrl(a.app_id, a.id)}
+                            title="Copiar URL do endpoint"
+                            className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                          >
+                            {copiedId === a.id ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
+                          </button>
                           <button
                             onClick={() => openDialog(a)}
                             className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
