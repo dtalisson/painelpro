@@ -70,7 +70,10 @@ const ProductDialog = ({ product, onClose, onSave }: ProductDialogProps) => {
       const filePath = `${crypto.randomUUID()}-${file.name}`;
       const { error: uploadError } = await supabase.storage
         .from("downloads")
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          contentType: file.type || "application/octet-stream",
+          upsert: false,
+        });
 
       if (uploadError) {
         setError("Erro ao enviar arquivo: " + uploadError.message);
