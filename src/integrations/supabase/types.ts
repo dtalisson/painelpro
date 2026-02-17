@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_logs: {
+        Row: {
+          created_at: string
+          details: Json | null
+          event_type: string
+          hwid: string | null
+          id: string
+          ip_address: string | null
+          license_key: string | null
+          software_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          details?: Json | null
+          event_type: string
+          hwid?: string | null
+          id?: string
+          ip_address?: string | null
+          license_key?: string | null
+          software_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          details?: Json | null
+          event_type?: string
+          hwid?: string | null
+          id?: string
+          ip_address?: string | null
+          license_key?: string | null
+          software_name?: string | null
+        }
+        Relationships: []
+      }
       app_status: {
         Row: {
           app_id: string
