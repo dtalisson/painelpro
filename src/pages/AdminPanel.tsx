@@ -20,19 +20,19 @@ interface Product {
 const AdminPanel = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [authorized, setAuthorized] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     checkAuth();
-    fetchProducts();
   }, []);
 
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
-      navigate("/admin/login");
+      navigate("/admin/login", { replace: true });
       return;
     }
     const { data: roleData } = await supabase
@@ -44,8 +44,11 @@ const AdminPanel = () => {
 
     if (!roleData) {
       await supabase.auth.signOut();
-      navigate("/admin/login");
+      navigate("/admin/login", { replace: true });
+      return;
     }
+    setAuthorized(true);
+    fetchProducts();
   };
 
   const fetchProducts = async () => {
@@ -74,11 +77,20 @@ const AdminPanel = () => {
     fetchProducts();
   };
 
+  if (!authorized) {
+    return (
+      <div className="relative flex min-h-screen items-center justify-center bg-background overflow-hidden">
+        <FallingDustBackground />
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground relative z-10" />
+      </div>
+    );
+  }
+
   return (
     <div className="relative min-h-screen bg-background overflow-hidden">
       <FallingDustBackground />
       {/* Header */}
-      <header className="relative z-10 border-b border-border/60 px-6 py-6 backdrop-blur-sm">
+      <header className="relative z-10 border-b border-border/40 px-6 py-6 backdrop-blur-xl bg-card/30">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Painel Admin</h1>
@@ -107,7 +119,7 @@ const AdminPanel = () => {
 
       {/* Content */}
       <main className="relative z-10 mx-auto max-w-6xl px-6 py-8">
-        <div className="rounded-2xl border border-border/60 bg-card/80 p-6 backdrop-blur-xl shadow-2xl shadow-primary/5">
+        <div className="rounded-2xl border border-border/40 bg-card/40 p-6 backdrop-blur-2xl shadow-[0_8px_60px_-12px_rgba(59,130,246,0.12)]">
           <div className="mb-6 flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold text-card-foreground">Aplicações</h2>
