@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Shield, Download, CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { Shield, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const Index = () => {
   const [key, setKey] = useState("");
@@ -35,6 +36,7 @@ const Index = () => {
         if (!fnError && result?.success === true) {
           setProduct({ name: p.name, download_url: p.download_url });
           setStatus("success");
+          toast.success("Key válida, o produto será baixado em instantes.", { position: "bottom-right" });
           triggerDownload(p.download_url, p.name);
           return;
         }
@@ -111,16 +113,9 @@ const Index = () => {
 
             {status === "success" && product && (
               <div className="mb-4 rounded-lg border border-success/30 bg-success/10 p-4">
-                <p className="mb-3 text-sm text-success">
+                <p className="text-sm text-success">
                   ✓ Key válida! Produto: <strong>{product.name}</strong>
                 </p>
-                <button
-                  onClick={() => triggerDownload(product.download_url, product.name)}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-success py-3 text-sm font-medium text-success-foreground transition-opacity hover:opacity-90"
-                >
-                  <Download className="h-4 w-4" />
-                  Baixar {product.name}
-                </button>
               </div>
             )}
 
