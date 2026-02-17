@@ -27,22 +27,24 @@ serve(async (req) => {
     const response = await fetch(url, { method: 'GET' });
     const data = await response.json();
 
-    // Log the validation attempt
-    try {
-      const supabaseAdmin = createClient(
-        Deno.env.get("SUPABASE_URL")!,
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-      );
-      const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("cf-connecting-ip") || null;
-      await supabaseAdmin.from("activity_logs").insert({
-        event_type: "download",
-        license_key: licenseKey,
-        software_name: softwareName || null,
-        ip_address: ip,
-        details: { success: data.success, message: data.message },
-      });
-    } catch (logErr) {
-      console.error("Failed to log activity:", logErr);
+    // Only log successful validations
+    if (data.success) {
+      try {
+        const supabaseAdmin = createClient(
+          Deno.env.get("SUPABASE_URL")!,
+          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+        );
+        const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("cf-connecting-ip") || null;
+        await supabaseAdmin.from("activity_logs").insert({
+          event_type: "download",
+          license_key: licenseKey,
+          software_name: softwareName || null,
+          ip_address: ip,
+          details: { success: data.success, message: data.message },
+        });
+      } catch (logErr) {
+        console.error("Failed to log activity:", logErr);
+      }
     }
 
     return new Response(JSON.stringify(data), {
