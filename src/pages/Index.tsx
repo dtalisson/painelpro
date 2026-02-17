@@ -152,8 +152,8 @@ const Index = () => {
       <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-4">
         <div className="w-full max-w-md">
           {/* Icon */}
-          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center">
-            <img src={iconGif} alt="Icon" className="h-20 w-20 object-contain" />
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full overflow-hidden border border-primary/20 bg-background/60 backdrop-blur-sm shadow-lg shadow-primary/10">
+            <img src={iconGif} alt="Icon" className="h-20 w-20 object-cover rounded-full" />
           </div>
 
           {/* Title */}
