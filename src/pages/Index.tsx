@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Shield, CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { CheckCircle, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -46,7 +46,7 @@ const Index = () => {
     }
 
     setStatus("error");
-    setErrorMsg("Key inválida ou não encontrada.");
+    toast.error("Key inválida ou não encontrada.", { position: "bottom-right" });
   };
 
   const triggerDownload = (url: string, fileName?: string) => {
@@ -61,19 +61,10 @@ const Index = () => {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <header className="flex items-center justify-between border-b border-border px-6 py-4">
+      <header className="flex items-center border-b border-border px-6 py-4">
         <div className="flex items-center gap-2">
           <div className="h-3 w-3 rounded-full bg-success" />
           <span className="text-lg font-semibold text-foreground">Painel</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <a
-            href="/admin"
-            className="flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-          >
-            <Shield className="h-4 w-4" />
-            Admin
-          </a>
         </div>
       </header>
 
@@ -103,21 +94,6 @@ const Index = () => {
                 className="flex-1 bg-transparent px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none"
               />
             </div>
-
-            {status === "error" && (
-              <div className="mb-4 flex items-center justify-center gap-2 text-sm text-destructive">
-                <XCircle className="h-4 w-4" />
-                {errorMsg}
-              </div>
-            )}
-
-            {status === "success" && product && (
-              <div className="mb-4 rounded-lg border border-success/30 bg-success/10 p-4">
-                <p className="text-sm text-success">
-                  ✓ Key válida! Produto: <strong>{product.name}</strong>
-                </p>
-              </div>
-            )}
 
             {status !== "success" && (
               <button
