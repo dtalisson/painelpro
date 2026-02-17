@@ -27,7 +27,7 @@ serve(async (req) => {
     const data = await response.json();
 
     return new Response(JSON.stringify(data), {
-      status: response.ok ? 200 : 400,
+      status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
