@@ -35,7 +35,7 @@ const Index = () => {
         if (!fnError && result?.success === true) {
           setProduct({ name: p.name, download_url: p.download_url });
           setStatus("success");
-          window.open(p.download_url, "_blank");
+          triggerDownload(p.download_url, p.name);
           return;
         }
       } catch {
@@ -47,10 +47,14 @@ const Index = () => {
     setErrorMsg("Key inválida ou não encontrada.");
   };
 
-  const handleDownload = () => {
-    if (product?.download_url) {
-      window.open(product.download_url, "_blank");
-    }
+  const triggerDownload = (url: string, fileName?: string) => {
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName || "download";
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   return (
@@ -111,7 +115,7 @@ const Index = () => {
                   ✓ Key válida! Produto: <strong>{product.name}</strong>
                 </p>
                 <button
-                  onClick={handleDownload}
+                  onClick={() => triggerDownload(product.download_url, product.name)}
                   className="flex w-full items-center justify-center gap-2 rounded-lg bg-success py-3 text-sm font-medium text-success-foreground transition-opacity hover:opacity-90"
                 >
                   <Download className="h-4 w-4" />
