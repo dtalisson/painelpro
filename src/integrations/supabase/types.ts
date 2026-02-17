@@ -23,6 +23,7 @@ export type Database = {
           id: string
           name: string
           seller_key: string
+          status: Database["public"]["Enums"]["product_status"]
           updated_at: string
         }
         Insert: {
@@ -33,6 +34,7 @@ export type Database = {
           id?: string
           name: string
           seller_key: string
+          status?: Database["public"]["Enums"]["product_status"]
           updated_at?: string
         }
         Update: {
@@ -43,6 +45,7 @@ export type Database = {
           id?: string
           name?: string
           seller_key?: string
+          status?: Database["public"]["Enums"]["product_status"]
           updated_at?: string
         }
         Relationships: []
@@ -80,6 +83,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      product_status: "online" | "offline" | "maintenance"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -208,6 +212,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      product_status: ["online", "offline", "maintenance"],
     },
   },
 } as const
