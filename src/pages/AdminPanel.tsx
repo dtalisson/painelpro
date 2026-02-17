@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Plus, Pencil, Trash2, Download, LogOut, Loader2, Circle, Activity, Package,
+  Plus, Pencil, Trash2, Download, LogOut, Loader2, Circle, Activity, Package, ScrollText,
 } from "lucide-react";
 import ProductDialog from "@/components/ProductDialog";
 import AppStatusTab from "@/components/AppStatusTab";
+import ActivityLogsTab from "@/components/ActivityLogsTab";
 import FallingDustBackground from "@/components/FallingDustBackground";
 
 type ProductStatus = "online" | "offline" | "maintenance";
@@ -69,7 +70,7 @@ const StatusSelector = ({
   );
 };
 
-type Tab = "products" | "app-status";
+type Tab = "products" | "app-status" | "logs";
 
 const AdminPanel = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -151,6 +152,7 @@ const AdminPanel = () => {
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     { id: "products", label: "Aplicações", icon: <Package className="h-4 w-4" /> },
     { id: "app-status", label: "App Status", icon: <Activity className="h-4 w-4" /> },
+    { id: "logs", label: "Logs", icon: <ScrollText className="h-4 w-4" /> },
   ];
 
   return (
@@ -314,6 +316,8 @@ const AdminPanel = () => {
         )}
 
         {activeTab === "app-status" && <AppStatusTab />}
+
+        {activeTab === "logs" && <ActivityLogsTab />}
       </main>
     </div>
   );

@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { sellerKey, licenseKey } = await req.json();
+    const { sellerKey, licenseKey, softwareName } = await req.json();
 
     if (!sellerKey || !licenseKey) {
       return new Response(JSON.stringify({ success: false, message: 'Seller key e license key são obrigatórios' }), {
@@ -38,6 +39,24 @@ serve(async (req) => {
     const resetUrl = `https://keyauth.win/api/seller/?sellerkey=${encodeURIComponent(sellerKey)}&type=resetuser&user=${encodeURIComponent(username)}`;
     const resetRes = await fetch(resetUrl, { method: 'GET' });
     const resetData = await resetRes.json();
+
+    // Log the HWID reset
+    try {
+      const supabaseAdmin = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+      );
+      const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("cf-connecting-ip") || null;
+      await supabaseAdmin.from("activity_logs").insert({
+        event_type: "hwid_reset",
+        license_key: licenseKey,
+        software_name: softwareName || null,
+        ip_address: ip,
+        details: { success: resetData.success, username, message: resetData.message },
+      });
+    } catch (logErr) {
+      console.error("Failed to log activity:", logErr);
+    }
 
     return new Response(JSON.stringify(resetData), {
       status: 200,
