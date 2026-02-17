@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Plus, Pencil, Trash2, Download, LogOut, Loader2,
+  Plus, Pencil, Trash2, Download, LogOut, Loader2, Circle,
 } from "lucide-react";
 import ProductDialog from "@/components/ProductDialog";
 import FallingDustBackground from "@/components/FallingDustBackground";
+
+type ProductStatus = "online" | "offline" | "maintenance";
 
 interface Product {
   id: string;
@@ -14,8 +16,57 @@ interface Product {
   download_url: string;
   file_name: string | null;
   app_name: string | null;
+  status: ProductStatus;
   created_at: string;
 }
+
+const statusConfig: Record<ProductStatus, { label: string; color: string; bg: string }> = {
+  online: { label: "Online", color: "text-emerald-400", bg: "bg-emerald-400/10 border-emerald-400/30" },
+  offline: { label: "Offline", color: "text-red-400", bg: "bg-red-400/10 border-red-400/30" },
+  maintenance: { label: "Manutenção", color: "text-amber-400", bg: "bg-amber-400/10 border-amber-400/30" },
+};
+
+const StatusSelector = ({
+  status,
+  onChange,
+}: {
+  status: ProductStatus;
+  onChange: (s: ProductStatus) => void;
+}) => {
+  const [open, setOpen] = useState(false);
+  const cfg = statusConfig[status];
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${cfg.bg}`}
+      >
+        <Circle className={`h-2 w-2 fill-current ${cfg.color}`} />
+        <span className={cfg.color}>{cfg.label}</span>
+      </button>
+      {open && (
+        <div className="absolute left-0 top-full z-20 mt-1 w-36 rounded-lg border border-border bg-card p-1 shadow-xl">
+          {(Object.keys(statusConfig) as ProductStatus[]).map((s) => (
+            <button
+              key={s}
+              onClick={() => {
+                onChange(s);
+                setOpen(false);
+              }}
+              className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-xs transition-colors hover:bg-accent ${
+                s === status ? "bg-accent" : ""
+              }`}
+            >
+              <Circle className={`h-2 w-2 fill-current ${statusConfig[s].color}`} />
+              <span className={statusConfig[s].color}>{statusConfig[s].label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const AdminPanel = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -69,6 +120,13 @@ const AdminPanel = () => {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/admin/login");
+  };
+
+  const handleStatusChange = async (id: string, status: ProductStatus) => {
+    await supabase.from("products").update({ status }).eq("id", id);
+    setProducts((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, status } : p))
+    );
   };
 
   const handleSave = () => {
@@ -154,6 +212,7 @@ const AdminPanel = () => {
                 <thead>
                   <tr className="border-b border-border text-left text-sm text-muted-foreground">
                     <th className="pb-3 font-medium">Nome</th>
+                    <th className="pb-3 font-medium">Status</th>
                     <th className="pb-3 font-medium">Seller Key</th>
                     <th className="pb-3 font-medium">Cadastrado em</th>
                     <th className="pb-3 text-right font-medium">Ações</th>
@@ -169,6 +228,12 @@ const AdminPanel = () => {
                             <p className="text-xs text-muted-foreground">{p.file_name}</p>
                           )}
                         </div>
+                      </td>
+                      <td className="py-4">
+                        <StatusSelector
+                          status={p.status}
+                          onChange={(s) => handleStatusChange(p.id, s)}
+                        />
                       </td>
                       <td className="py-4">
                         <code className="rounded bg-accent px-2 py-1 text-xs text-muted-foreground">
