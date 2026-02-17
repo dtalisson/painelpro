@@ -12,7 +12,10 @@ serve(async (req) => {
   }
 
   try {
-    const { sellerKey, licenseKey, softwareName } = await req.json();
+    const body = await req.json();
+    const sellerKey = typeof body.sellerKey === 'string' ? body.sellerKey.trim().slice(0, 100) : '';
+    const licenseKey = typeof body.licenseKey === 'string' ? body.licenseKey.trim().slice(0, 100) : '';
+    const softwareName = typeof body.softwareName === 'string' ? body.softwareName.trim().slice(0, 100) : '';
 
     if (!sellerKey || !licenseKey) {
       return new Response(JSON.stringify({ success: false, message: 'Seller key e license key são obrigatórios' }), {
@@ -21,7 +24,15 @@ serve(async (req) => {
       });
     }
 
-    // Step 1: Fetch license info to get the username (used_by)
+    // Validate format
+    const keyPattern = /^[a-zA-Z0-9_\-]+$/;
+    if (!keyPattern.test(sellerKey) || !keyPattern.test(licenseKey)) {
+      return new Response(JSON.stringify({ success: false, message: 'Formato de key inválido' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const infoUrl = `https://keyauth.win/api/seller/?sellerkey=${encodeURIComponent(sellerKey)}&type=info&key=${encodeURIComponent(licenseKey)}`;
     const infoRes = await fetch(infoUrl, { method: 'GET' });
     const infoData = await infoRes.json();
@@ -35,7 +46,6 @@ serve(async (req) => {
 
     const username = infoData.usedby;
 
-    // Step 2: Reset the HWID for that user
     const resetUrl = `https://keyauth.win/api/seller/?sellerkey=${encodeURIComponent(sellerKey)}&type=resetuser&user=${encodeURIComponent(username)}`;
     const resetRes = await fetch(resetUrl, { method: 'GET' });
     const resetData = await resetRes.json();

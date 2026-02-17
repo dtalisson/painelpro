@@ -23,7 +23,9 @@ Deno.serve(async (req) => {
   const url = new URL(req.url);
   const segments = url.pathname.split("/").filter(Boolean);
   // segments: ["api_status", "{appId}"] or ["api_status"]
-  const appId = segments.length >= 2 ? decodeURIComponent(segments[segments.length - 1]) : null;
+  const rawAppId = segments.length >= 2 ? decodeURIComponent(segments[segments.length - 1]) : null;
+  // Sanitize: limit length and strip dangerous characters
+  const appId = rawAppId ? rawAppId.slice(0, 100).replace(/[<>"';]/g, '') : null;
 
   if (!appId || appId === "api_status") {
     return new Response(
