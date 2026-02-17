@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_status: {
+        Row: {
+          app_id: string
+          created_at: string
+          current_version: string
+          download_url: string | null
+          id: string
+          maintenance: boolean
+          message: string | null
+          message_maintenance: string | null
+          message_offline: string | null
+          message_online: string | null
+          message_update_required: string | null
+          min_version: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          app_id: string
+          created_at?: string
+          current_version?: string
+          download_url?: string | null
+          id?: string
+          maintenance?: boolean
+          message?: string | null
+          message_maintenance?: string | null
+          message_offline?: string | null
+          message_online?: string | null
+          message_update_required?: string | null
+          min_version?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          app_id?: string
+          created_at?: string
+          current_version?: string
+          download_url?: string | null
+          id?: string
+          maintenance?: boolean
+          message?: string | null
+          message_maintenance?: string | null
+          message_offline?: string | null
+          message_online?: string | null
+          message_update_required?: string | null
+          min_version?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           app_name: string | null
