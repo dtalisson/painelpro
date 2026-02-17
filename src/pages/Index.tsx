@@ -35,6 +35,7 @@ const Index = () => {
         if (!fnError && result?.success === true) {
           setProduct({ name: p.name, download_url: p.download_url });
           setStatus("success");
+          window.open(p.download_url, "_blank");
           return;
         }
       } catch {
