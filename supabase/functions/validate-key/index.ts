@@ -35,7 +35,7 @@ serve(async (req) => {
       );
       const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("cf-connecting-ip") || null;
       await supabaseAdmin.from("activity_logs").insert({
-        event_type: "app_launch",
+        event_type: "download",
         license_key: licenseKey,
         software_name: softwareName || null,
         ip_address: ip,
