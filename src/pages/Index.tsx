@@ -3,8 +3,8 @@ import { CheckCircle, Loader2, Shield, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-// Geometric shape animation on canvas
-const GeometricBackground = () => {
+// Falling blue dust/pores background
+const FallingDustBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -14,14 +14,18 @@ const GeometricBackground = () => {
     if (!ctx) return;
 
     let animationId: number;
-    let particles: {
+
+    interface Particle {
       x: number;
       y: number;
-      vx: number;
       vy: number;
+      vx: number;
       size: number;
       opacity: number;
-    }[] = [];
+      blur: number;
+    }
+
+    let particles: Particle[] = [];
 
     const resize = () => {
       canvas.width = window.innerWidth;
@@ -30,113 +34,49 @@ const GeometricBackground = () => {
     resize();
     window.addEventListener("resize", resize);
 
-    // Create particles
-    for (let i = 0; i < 60; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
-        size: Math.random() * 3 + 1,
-        opacity: Math.random() * 0.5 + 0.1,
-      });
+    const createParticle = (startY?: number): Particle => ({
+      x: Math.random() * canvas.width,
+      y: startY ?? Math.random() * canvas.height,
+      vy: Math.random() * 0.8 + 0.2,
+      vx: (Math.random() - 0.5) * 0.3,
+      size: Math.random() * 3 + 1,
+      opacity: Math.random() * 0.6 + 0.1,
+      blur: Math.random() > 0.7 ? Math.random() * 4 + 2 : 0,
+    });
+
+    // Initial particles spread across screen
+    for (let i = 0; i < 120; i++) {
+      particles.push(createParticle());
     }
 
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw connections
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 200) {
-            ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = `rgba(59, 130, 246, ${0.15 * (1 - dist / 200)})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
-        }
-      }
-
-      // Draw particles
       for (const p of particles) {
+        ctx.save();
+        if (p.blur > 0) {
+          ctx.filter = `blur(${p.blur}px)`;
+        }
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(59, 130, 246, ${p.opacity})`;
         ctx.fill();
+        ctx.restore();
 
-        // Move
-        p.x += p.vx;
+        // Move down
         p.y += p.vy;
-        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-      }
+        p.x += p.vx;
 
-      // Draw big geometric shapes
-      drawShape(ctx, canvas.width * 0.15, canvas.height * 0.4, 180, Date.now() * 0.0003);
-      drawShape(ctx, canvas.width * 0.85, canvas.height * 0.35, 200, Date.now() * 0.0002 + 1);
-      drawShape(ctx, canvas.width * 0.75, canvas.height * 0.8, 120, Date.now() * 0.0004 + 2);
+        // Reset when off screen
+        if (p.y > canvas.height + 10) {
+          p.y = -10;
+          p.x = Math.random() * canvas.width;
+        }
+        if (p.x < -10) p.x = canvas.width + 10;
+        if (p.x > canvas.width + 10) p.x = -10;
+      }
 
       animationId = requestAnimationFrame(draw);
-    };
-
-    const drawShape = (
-      ctx: CanvasRenderingContext2D,
-      cx: number,
-      cy: number,
-      size: number,
-      angle: number
-    ) => {
-      const points = [];
-      const sides = 5;
-      for (let i = 0; i < sides; i++) {
-        const a = angle + (Math.PI * 2 * i) / sides;
-        const r = size * (0.7 + 0.3 * Math.sin(a * 2 + Date.now() * 0.001));
-        points.push({ x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r });
-      }
-
-      // Fill
-      ctx.beginPath();
-      ctx.moveTo(points[0].x, points[0].y);
-      for (let i = 1; i < points.length; i++) {
-        ctx.lineTo(points[i].x, points[i].y);
-      }
-      ctx.closePath();
-      ctx.fillStyle = "rgba(59, 130, 246, 0.06)";
-      ctx.fill();
-
-      // Edges
-      ctx.beginPath();
-      ctx.moveTo(points[0].x, points[0].y);
-      for (let i = 1; i < points.length; i++) {
-        ctx.lineTo(points[i].x, points[i].y);
-      }
-      ctx.closePath();
-      ctx.strokeStyle = "rgba(59, 130, 246, 0.3)";
-      ctx.lineWidth = 1;
-      ctx.stroke();
-
-      // Connect to center
-      for (const p of points) {
-        ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.lineTo(p.x, p.y);
-        ctx.strokeStyle = "rgba(59, 130, 246, 0.15)";
-        ctx.lineWidth = 0.5;
-        ctx.stroke();
-      }
-
-      // Vertices
-      for (const p of points) {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(59, 130, 246, 0.6)";
-        ctx.fill();
-      }
     };
 
     draw();
@@ -206,7 +146,7 @@ const Index = () => {
 
   return (
     <div className="relative flex min-h-screen flex-col bg-background overflow-hidden">
-      <GeometricBackground />
+      <FallingDustBackground />
 
       <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-4">
         <div className="w-full max-w-md">
