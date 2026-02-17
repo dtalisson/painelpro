@@ -12,6 +12,7 @@ interface Product {
   seller_key: string;
   download_url: string;
   file_name: string | null;
+  app_name: string | null;
   created_at: string;
 }
 

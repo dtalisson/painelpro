@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       products: {
         Row: {
+          app_name: string | null
           created_at: string
           download_url: string
           file_name: string | null
@@ -25,6 +26,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          app_name?: string | null
           created_at?: string
           download_url: string
           file_name?: string | null
@@ -34,6 +36,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          app_name?: string | null
           created_at?: string
           download_url?: string
           file_name?: string | null
