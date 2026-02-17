@@ -5,6 +5,7 @@ import {
   Plus, Pencil, Trash2, Download, LogOut, Loader2,
 } from "lucide-react";
 import ProductDialog from "@/components/ProductDialog";
+import FallingDustBackground from "@/components/FallingDustBackground";
 
 interface Product {
   id: string;
@@ -74,9 +75,10 @@ const AdminPanel = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative min-h-screen bg-background overflow-hidden">
+      <FallingDustBackground />
       {/* Header */}
-      <header className="border-b border-border px-6 py-6">
+      <header className="relative z-10 border-b border-border/60 px-6 py-6 backdrop-blur-sm">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Painel Admin</h1>
@@ -87,14 +89,14 @@ const AdminPanel = () => {
           <div className="flex items-center gap-3">
             <a
               href="/"
-              className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+              className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-all hover:brightness-110 active:scale-[0.98]"
             >
               <Download className="h-4 w-4" />
               Ir pro Download
             </a>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              className="flex items-center gap-2 rounded-xl border border-border/60 bg-card/80 backdrop-blur-xl px-4 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
               <LogOut className="h-4 w-4" />
               Sair
@@ -104,8 +106,8 @@ const AdminPanel = () => {
       </header>
 
       {/* Content */}
-      <main className="mx-auto max-w-6xl px-6 py-8">
-        <div className="rounded-xl border border-border bg-card p-6">
+      <main className="relative z-10 mx-auto max-w-6xl px-6 py-8">
+        <div className="rounded-2xl border border-border/60 bg-card/80 p-6 backdrop-blur-xl shadow-2xl shadow-primary/5">
           <div className="mb-6 flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold text-card-foreground">Aplicações</h2>
