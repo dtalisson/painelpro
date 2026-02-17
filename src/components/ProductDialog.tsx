@@ -8,6 +8,7 @@ interface Product {
   seller_key: string;
   download_url: string;
   file_name: string | null;
+  app_name: string | null;
 }
 
 interface ProductDialogProps {
@@ -19,6 +20,7 @@ interface ProductDialogProps {
 const ProductDialog = ({ product, onClose, onSave }: ProductDialogProps) => {
   const [name, setName] = useState(product?.name || "");
   const [sellerKey, setSellerKey] = useState(product?.seller_key || "");
+  const [appName, setAppName] = useState(product?.app_name || "");
   const [file, setFile] = useState<globalThis.File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -102,6 +104,7 @@ const ProductDialog = ({ product, onClose, onSave }: ProductDialogProps) => {
       seller_key: sellerKey.trim(),
       download_url: downloadUrl,
       file_name: fileName,
+      app_name: appName.trim() || null,
     };
 
     let result;
@@ -153,8 +156,17 @@ const ProductDialog = ({ product, onClose, onSave }: ProductDialogProps) => {
               placeholder="Chave única do produto"
             />
           </div>
+          <div>
+            <label className="mb-1 block text-sm text-muted-foreground">App Name (KeyAuth)</label>
+            <input
+              type="text"
+              value={appName}
+              onChange={(e) => setAppName(e.target.value)}
+              className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm text-foreground outline-none focus:ring-1 focus:ring-ring"
+              placeholder="Nome da aplicação no KeyAuth (opcional)"
+            />
+          </div>
 
-          {/* File Upload Area */}
           <div>
             <label className="mb-1 block text-sm text-muted-foreground">Arquivo *</label>
             <div
