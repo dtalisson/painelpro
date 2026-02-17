@@ -40,13 +40,12 @@ const FallingDustBackground = () => {
       y: startY ?? Math.random() * canvas.height,
       vy: Math.random() * 0.5 + 0.15,
       vx: (Math.random() - 0.5) * 0.15,
-      size: Math.random() * 1.2 + 0.4,
+      size: Math.random() * 0.8 + 0.2,
       opacity: 1,
       blur: 0,
     });
 
-    // Initial particles spread across screen
-    for (let i = 0; i < 120; i++) {
+    for (let i = 0; i < 60; i++) {
       particles.push(createParticle());
     }
 
@@ -172,7 +171,7 @@ const Index = () => {
                 if (status !== "idle") setStatus("idle");
               }}
               onKeyDown={(e) => e.key === "Enter" && handleValidate()}
-              className="mb-4 w-full rounded-xl border border-border bg-background/80 px-5 py-4 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-primary/50 focus:ring-1 focus:ring-primary/30 font-mono tracking-wide"
+              className="mb-4 w-full rounded-xl border border-border bg-background/80 px-5 py-4 text-sm text-foreground placeholder:text-muted-foreground placeholder:text-center outline-none transition-colors focus:border-primary/50 focus:ring-1 focus:ring-primary/30 font-mono tracking-wide text-center"
             />
 
             <button
@@ -190,10 +189,6 @@ const Index = () => {
           </div>
 
           {/* Footer */}
-          <p className="mt-6 flex items-center justify-center gap-2 text-xs text-muted-foreground/60">
-            <Shield className="h-3.5 w-3.5" />
-            Secured by KeyAuth
-          </p>
         </div>
       </main>
     </div>
